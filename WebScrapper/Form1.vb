@@ -15,17 +15,24 @@ Public Class Form1
     outputTextbox.Text = headingNode.InnerText + vbCrLf + vbCrLf + paragraphNode.InnerText
 
     Dim links As HtmlAgilityPack.HtmlNodeCollection = htmlDoc.DocumentNode.SelectNodes("//div[@class='div-col']//a | //div[@class='div-col']//ul")
-    For Each link As HtmlAgilityPack.HtmlNode In links
-      outputTextbox.AppendText(vbCrLf + link.GetAttributeValue("href", "") + vbCrLf)
-    Next
+    If links IsNot Nothing Then
+      For Each link As HtmlAgilityPack.HtmlNode In links
+        outputTextbox.AppendText(vbCrLf + link.GetAttributeValue("href", "") + vbCrLf)
+      Next
+    Else
+      outputTextbox.AppendText(vbCrLf + "Links not found." + vbCrLf)
+    End If
 
     Dim tableHeadingNodes As HtmlAgilityPack.HtmlNodeCollection = htmlDoc.DocumentNode.SelectNodes("//table[contains(@class, 'sidebar')][contains(@class, 'nomobile')][contains(@class, 'nowraplinks')][contains(@class, 'hlist')]//th[contains(@class, 'sidebar-heading')]")
-
-    For Each tableHeadingNode As HtmlAgilityPack.HtmlNode In tableHeadingNodes
-      outputTextbox.AppendText(vbCrLf + tableHeadingNode.InnerText + vbCrLf)
-    Next
-
+    If tableHeadingNodes IsNot Nothing Then
+      For Each tableHeadingNode As HtmlAgilityPack.HtmlNode In tableHeadingNodes
+        outputTextbox.AppendText(vbCrLf + tableHeadingNode.InnerText + vbCrLf)
+      Next
+    Else
+      outputTextbox.AppendText(vbCrLf + "Table headings not found." + vbCrLf)
+    End If
   End Sub
+
 
   Private Async Sub HeadlessBtn_Click(sender As Object, e As EventArgs) Handles HeadlessBtn.Click
     Dim url As String = "https://edition.cnn.com/sport"
@@ -38,7 +45,7 @@ Public Class Form1
     Dim browser As Browser = Await Puppeteer.LaunchAsync(launchOptions)
 
     Dim page As Page = Await browser.NewPageAsync()
-    Dim timeoutMilliseconds As Integer = 1200000
+    Dim timeoutMilliseconds As Integer = 120000
     Await page.GoToAsync(url, New NavigationOptions() With {.Timeout = timeoutMilliseconds})
 
     Await page.WaitForSelectorAsync("div.container_lead-plus-headlines-with-images__headline > span[data-editable='headline']")
